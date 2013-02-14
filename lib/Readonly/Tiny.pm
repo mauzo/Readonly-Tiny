@@ -8,7 +8,7 @@ our $VERSION = "0";
 
 use Exporter "import";
 our @EXPORT = qw/readonly/;
-our @EXPORT_OK = qw/readonly Readonly/;
+our @EXPORT_OK = qw/readonly readwrite Readonly/;
 
 use Carp            qw/croak/;
 use Scalar::Util    qw/reftype refaddr blessed/;
@@ -18,47 +18,53 @@ sub debug {
     #warn sprintf "%s [%x] %s\n", @_;
 }
 
-sub readonly;
-sub readonly {
-    my ($r, $o) = @_;
+sub _recurse;
+
+sub readonly    { _recurse 1, @_; $_[0] }
+sub readwrite   { _recurse 0, @_; $_[0] }
+
+sub _recurse {
+    my ($ro, $r, $o) = @_;
 
     my $x = refaddr $r
         or croak "readonly needs a reference";
-    $o->{seen}{$x} and return $r;
-    $o->{seen}{$x} = 1;
 
-    blessed $r && !$o->{peek}
-        and return $r;
+    exists $o->{skip}{$x}       and return $r;
+    $o->{skip}{$x} = 1;
+
+    blessed $r && !$o->{peek}   and return $r;
 
     my $t = reftype $r;
     #debug $t, $x, pp $r;
 
-    # it's not clear it's meaningful to SvREADONLY these types
+    # It's not clear it's meaningful to SvREADONLY these types. A qr//
+    # is a ref to a REGEXP, so a scalar holding one can be made
+    # readonly; the REGEXP itself would normally be skipped anyway
+    # because it's blessed.
     $t eq "CODE" || $t eq "IO" || $t eq "FORMAT" || $t eq "REGEXP"
         and return $r;
 
     unless ($o->{shallow}) {
         if ($t eq "REF") {
-            readonly $$r, $o;
+            _recurse $ro, $$r, $o;
         }
         if ($t eq "ARRAY") {
-            readonly \$_, $o for @$r;
+            _recurse $ro, \$_, $o for @$r;
         }
         if ($t eq "HASH") {
-            readonly \$_, $o for values %$r;
+            &Internals::SvREADONLY($r, 0);
+            _recurse $ro, \$_, $o for values %$r;
             Internals::hv_clear_placeholders(%$r);
         }
         if ($t eq "GLOB") {
-            *$r{$_} and readonly *$r{$_} 
+            *$r{$_} and _recurse $ro, *$r{$_}, $o 
                 for qw/SCALAR ARRAY HASH/;
         }
     }
 
     # bleeding prototypes...
-    &Internals::SvREADONLY($r, 1);
+    &Internals::SvREADONLY($r, $ro);
     #debug "READONLY", $r, &Internals::SvREADONLY($r);
-
-    $r;
 }
 
 sub Readonly (\[$@%]@) {
