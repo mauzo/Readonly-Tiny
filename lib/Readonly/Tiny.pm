@@ -1,5 +1,11 @@
 package Readonly::Tiny;
 
+=head1 NAME
+
+Readonly::Tiny - Simple, correct readonly values
+
+=cut
+
 use 5.008;
 use warnings;
 use strict;
@@ -89,3 +95,14 @@ sub Readonly (\[$@%]@) {
 }
 
 1;
+
+=head1 BUGS
+
+Please report bugs to <L<bug-Readonly-Tiny@rt.cpan.org>>.
+
+=head1 AUTHOR
+
+Copyright 2012 Ben Morrow <ben@morrow.me.uk>.
+
+Released under the 2-clause BSD licence.
+
