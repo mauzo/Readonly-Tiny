@@ -29,7 +29,7 @@ use 5.008;
 use warnings;
 use strict;
 
-our $VERSION = "0";
+our $VERSION = "1";
 
 use Exporter "import";
 our @EXPORT = qw/readonly/;
@@ -194,7 +194,11 @@ Please report bugs to <L<bug-Readonly-Tiny@rt.cpan.org>>.
 
 =head1 AUTHOR
 
-Copyright 2015 Ben Morrow <ben@morrow.me.uk>.
+Ben Morrow <ben@morrow.me.uk>
+
+=head1 COPYRIGHT
+
+Copyright 2015 Ben Morrow.
 
 Released under the 2-clause BSD licence.
 

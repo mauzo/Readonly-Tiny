@@ -1,10 +1,10 @@
 {
    "abstract" : "Simple, correct readonly values",
    "author" : [
-      "Copyright 2012 Ben Morrow <ben@morrow.me.uk>."
+      "Ben Morrow <ben@morrow.me.uk>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Module::Build version 0.4214",
    "license" : [
       "bsd"
    ],
@@ -16,6 +16,7 @@
    "prereqs" : {
       "build" : {
          "requires" : {
+            "Test::Exception" : "0",
             "Test::More" : "0.96"
          }
       },
@@ -28,7 +29,7 @@
    "provides" : {
       "Readonly::Tiny" : {
          "file" : "lib/Readonly/Tiny.pm",
-         "version" : 0
+         "version" : "1"
       }
    },
    "release_status" : "stable",
@@ -43,5 +44,5 @@
          "url" : "http://github.com/mauzo/Readonly-Tiny"
       }
    },
-   "version" : "0"
+   "version" : "1"
 }
