@@ -17,6 +17,7 @@
       "build" : {
          "requires" : {
             "Test::Exception" : "0",
+            "Test::Exports" : "0",
             "Test::More" : "0.96"
          }
       },
@@ -29,7 +30,7 @@
    "provides" : {
       "Readonly::Tiny" : {
          "file" : "lib/Readonly/Tiny.pm",
-         "version" : "1"
+         "version" : "2"
       }
    },
    "release_status" : "stable",
@@ -44,5 +45,5 @@
          "url" : "http://github.com/mauzo/Readonly-Tiny"
       }
    },
-   "version" : "1"
+   "version" : "2"
 }

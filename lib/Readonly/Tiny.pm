@@ -29,7 +29,7 @@ use 5.008;
 use warnings;
 use strict;
 
-our $VERSION = "1";
+our $VERSION = "2";
 
 use Exporter "import";
 our @EXPORT = qw/readonly/;

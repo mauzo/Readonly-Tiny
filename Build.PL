@@ -9,6 +9,7 @@ Module::Build->new(
     build_requires	=> {
 	"Test::More"	    => "0.96",
         "Test::Exception"   => 0,
+        "Test::Exports"     => 0,
     },
     meta_merge		=> {
 	resources   => {

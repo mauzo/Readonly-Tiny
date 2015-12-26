@@ -4,6 +4,7 @@ author:
   - 'Ben Morrow <ben@morrow.me.uk>'
 build_requires:
   Test::Exception: '0'
+  Test::Exports: '0'
   Test::More: '0.96'
 configure_requires:
   Module::Build: '0.38'
@@ -17,9 +18,9 @@ name: Readonly-Tiny
 provides:
   Readonly::Tiny:
     file: lib/Readonly/Tiny.pm
-    version: '1'
+    version: '2'
 resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Readonly-Tiny
   license: http://opensource.org/licenses/bsd-license.php
   repository: http://github.com/mauzo/Readonly-Tiny
-version: '1'
+version: '2'
