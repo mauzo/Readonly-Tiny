@@ -85,12 +85,23 @@ Undo the effects of C<readonly>. C<%opts> is the same. Note that making
 a hash readwrite will undo any restrictions put in place using
 L<Hash::Util>.
 
+B<BE VERY CAREFUL> calling this on values you have not made readonly
+yourself. It will silently ignore attempts to make the core values
+C<PL_sv_undef>, C<PL_sv_yes> and C<PL_sv_no> readwrite, but there are
+many other values the core makes readonly, usually with good reason.
+Recent versions of perl will not allow you to make readwrite a value the
+core has set readonly, but you should probably not rely on this.
+
 =cut
 
 sub _recurse;
 
 sub readonly    { _recurse 1, @_; $_[0] }
 sub readwrite   { _recurse 0, @_; $_[0] }
+
+my %immortal =
+    map +(refaddr $_, 1),
+    \undef, \!1, \!0;
 
 sub _recurse {
     my ($ro, $r, $o) = @_;
@@ -101,6 +112,7 @@ sub _recurse {
     exists $o->{skip}{$x}       and return $r;
     $o->{skip}{$x} = 1;
 
+    !$ro && $immortal{$x}       and return $r;
     blessed $r && !$o->{peek}   and return $r;
 
     my $t = reftype $r;
