@@ -4,6 +4,25 @@ package Readonly::Tiny;
 
 Readonly::Tiny - Simple, correct readonly values
 
+=head1 SYNOPSIS
+
+    use Readonly::Tiny;
+
+    my $x = readonly [1, 2, 3];
+    # $x is not readonly, but the array it points to is.
+    
+    my @y = (4, 5, 6);
+    readonly \@y;
+    # @y is readonly, as well as its contents.
+
+=head1 DESCRIPTION
+
+Readonly::Tiny provides a simple and correct way of making values
+readonly. Unlike L<Readonly> it does not cause arrays and hashes to be
+tied, it just uses the core C<SvREADONLY> flag.
+
+=head1 FUNCTIONS
+
 =cut
 
 use 5.008;
@@ -23,6 +42,50 @@ use Scalar::Util    qw/reftype refaddr blessed/;
 sub debug { 
     #warn sprintf "%s [%x] %s\n", @_;
 }
+
+=head2 readonly
+
+    my $ro = readonly $ref, \%opts;
+
+Make a data structure readonly. C<$ref> must be a reference; the
+referenced value, and any values referenced recursively, will be made
+readonly. C<$ref> is returned, but it will not itself be readonly; it is
+possible to make a variable readonly by passing a reference to it, as in
+the L</SYNOPSIS>.
+
+C<%opts> is a hashref of options:
+
+=over 4
+
+=item peek
+
+Normally blessed references will not be looked through. The scalar
+holding the reference will be made readonly (so a different object
+cannot be assigned) but the contents of the object itself will be left
+alone. Supplying C<< peek => 1 >> allows blessed refs to be looked
+through.
+
+=item skip
+
+This should be a hashref keyed by refaddr. Any object whose refaddr is
+in the hash will be skipped.
+
+=back
+
+Note that making a hash readonly has the same effect as calling
+L<C<Hash::Util::lock_hash>|Hash::Util/lock_hash>; in particular, it
+causes restricted hashes to be re-restricted to their current set of
+keys.
+
+=head2 readwrite
+
+    my $rw = readwrite $ref, \%opts;
+
+Undo the effects of C<readonly>. C<%opts> is the same. Note that making
+a hash readwrite will undo any restrictions put in place using
+L<Hash::Util>.
+
+=cut
 
 sub _recurse;
 
@@ -73,6 +136,18 @@ sub _recurse {
     #debug "READONLY", $r, &Internals::SvREADONLY($r);
 }
 
+=head2 Readonly
+
+    Readonly my $x, 1;
+    Readonly my @y, 2, 3, 4;
+    Readonly my %z, foo => 5;
+
+This is a compatibility shim for L<Readonly>. It is prototyped to take a
+reference to its first argument, and assigns the rest of the argument
+list to that argument before making the whole thing readonly.
+
+=cut
+
 sub Readonly (\[$@%]@) {
     my $r = shift;
     my $t = reftype $r
@@ -96,13 +171,18 @@ sub Readonly (\[$@%]@) {
 
 1;
 
+=head1 EXPORTS
+
+C<readonly> is exported by default. C<readwrite> and C<Readonly> are
+exported on request.
+
 =head1 BUGS
 
 Please report bugs to <L<bug-Readonly-Tiny@rt.cpan.org>>.
 
 =head1 AUTHOR
 
-Copyright 2012 Ben Morrow <ben@morrow.me.uk>.
+Copyright 2015 Ben Morrow <ben@morrow.me.uk>.
 
 Released under the 2-clause BSD licence.
 
