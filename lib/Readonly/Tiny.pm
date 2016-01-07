@@ -29,7 +29,7 @@ use 5.008;
 use warnings;
 use strict;
 
-our $VERSION = "2";
+our $VERSION = "3";
 
 use Exporter "import";
 our @EXPORT = qw/readonly/;
@@ -38,6 +38,25 @@ our @EXPORT_OK = qw/readonly readwrite Readonly/;
 use Carp            qw/croak/;
 use Scalar::Util    qw/reftype refaddr blessed/;
 #use Data::Dump      qw/pp/;
+
+use constant RX_MAGIC => (reftype(qr/x/) ne "REGEXP");
+
+if (RX_MAGIC) {
+    require B;
+
+    *is_regexp = sub {
+        my $o = B::svref_2object($_[0]) or return;
+        blessed($o) eq "B::PVMG"        or return;
+
+        my $m = $o->MAGIC;
+        while ($m) {
+            $m->TYPE eq "r" and return 1;
+            $m = $m->MOREMAGIC;
+        }
+
+        return;
+    };
+}
 
 sub debug { 
     #warn sprintf "%s [%x] %s\n", @_;
@@ -124,6 +143,9 @@ sub _recurse {
     # because it's blessed.
     $t eq "CODE" || $t eq "IO" || $t eq "FORMAT" || $t eq "REGEXP"
         and return $r;
+
+    # Look for r magic pre-5.12
+    RX_MAGIC and is_regexp($r) and return $r;
 
     unless ($o->{shallow}) {
         if ($t eq "REF") {
